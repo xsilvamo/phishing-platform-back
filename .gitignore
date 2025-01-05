@@ -13,9 +13,7 @@
 *.tmp
 
 # Dependencias y caché
-/go.sum
 /go.work
-*.mod
 
 # Archivos de configuración sensibles
 .env
