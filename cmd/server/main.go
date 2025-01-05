@@ -1,25 +1,25 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Crear router Gin
+	// Cargar variables de entorno
+	if err := godotenv.Load(".env"); err != nil {
+		log.Fatal("Error cargando el archivo .env")
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("PORT no configurado en .env")
+	}
+
+	// Inicia servidor (usa el puerto de .env)
 	r := gin.Default()
-
-	// Rutas básicas
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-
-	// Iniciar servidor
-	fmt.Println("Servidor corriendo en http://localhost:8080")
-	log.Fatal(r.Run(":8080"))
+	r.Run(":" + port)
 }
