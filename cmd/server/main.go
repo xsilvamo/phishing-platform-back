@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 
+	"phishing-platform-backend/internal/repository"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -18,6 +20,9 @@ func main() {
 	if port == "" {
 		log.Fatal("PORT no configurado en .env")
 	}
+
+	// Inicializamos la base de datos
+	repository.InitDB()
 
 	// Inicia servidor (usa el puerto de .env)
 	r := gin.Default()
