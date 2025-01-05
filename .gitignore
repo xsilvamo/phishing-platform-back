@@ -1,0 +1,61 @@
+# Binarios compilados
+/bin/
+/*.exe
+/*.out
+/*.dll
+/*.so
+
+# Archivos temporales de Go
+*.log
+*.test
+*.prof
+*.cover
+*.tmp
+
+# Dependencias y caché
+/go.sum
+/go.work
+*.mod
+
+# Archivos de configuración sensibles
+.env
+config/*.yaml
+config/*.json
+
+# Archivos generados por Swagger
+docs/*
+
+# Archivos de IDE y editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# Archivos específicos de WSL
+*~
+*.bak
+.trash/
+
+# Archivos de Docker
+docker-compose.override.yml
+*.tar
+*.img
+
+# Archivos de migraciones
+migrations/*.log
+migrations/*.lock
+
+# Archivos específicos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archivos relacionados con pruebas y cobertura
+*.coverprofile
+*.cover
+*.cov
+
+# Archivos temporales de procesos
+*.pid
