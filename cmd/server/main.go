@@ -39,6 +39,7 @@ func main() {
 	})
 
 	r.POST("/auth/register", api.Register)
+	r.POST("/auth/login", api.Login)
 
 	r.Run(":" + port)
 }
