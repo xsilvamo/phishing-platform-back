@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"phishing-platform-backend/internal/api"
 	"phishing-platform-backend/internal/repository"
 
 	"github.com/gin-gonic/gin"
@@ -36,6 +37,8 @@ func main() {
 		}
 		c.JSON(200, users)
 	})
+
+	r.POST("/auth/register", api.Register)
 
 	r.Run(":" + port)
 }
