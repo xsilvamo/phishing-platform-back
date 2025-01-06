@@ -3,6 +3,7 @@ package repository
 import (
 	"log"
 	"os"
+	"phishing-platform-backend/internal/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,4 +24,13 @@ func InitDB() {
 	}
 
 	log.Print("Conexión a la base de datos exitosa")
+
+	// Migrar modelos
+	err = DB.AutoMigrate(&models.User{})
+	if err != nil {
+		log.Fatalf("Error migrando modelos: %v", err)
+	}
+
+	log.Print("Migraciones completadas")
+
 }

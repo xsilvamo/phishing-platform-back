@@ -26,5 +26,16 @@ func main() {
 
 	// Inicia servidor (usa el puerto de .env)
 	r := gin.Default()
+
+	r.GET("/users", func(c *gin.Context) {
+		repo := repository.UserRepository{DB: repository.DB}
+		users, err := repo.GetAll()
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(200, users)
+	})
+
 	r.Run(":" + port)
 }
