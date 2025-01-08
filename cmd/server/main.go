@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 
 	"phishing-platform-backend/internal/api"
+	"phishing-platform-backend/internal/middleware"
 	"phishing-platform-backend/internal/repository"
 
 	"github.com/gin-gonic/gin"
@@ -28,18 +30,21 @@ func main() {
 	// Inicia servidor (usa el puerto de .env)
 	r := gin.Default()
 
-	r.GET("/users", func(c *gin.Context) {
-		repo := repository.UserRepository{DB: repository.DB}
-		users, err := repo.GetAll()
-		if err != nil {
-			c.JSON(500, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(200, users)
-	})
-
+	// Rutas públicas
 	r.POST("/auth/register", api.Register)
 	r.POST("/auth/login", api.Login)
+
+	// Grupo de rutas protegidas
+	protected := r.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+
+	protected.GET("/protected", func(c *gin.Context) {
+		userID := c.MustGet("userID").(uint)
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Acceso autorizado",
+			"userID":  userID,
+		})
+	})
 
 	r.Run(":" + port)
 }
