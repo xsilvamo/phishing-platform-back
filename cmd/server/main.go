@@ -33,6 +33,7 @@ func main() {
 	// Rutas públicas
 	r.POST("/auth/register", api.Register)
 	r.POST("/auth/login", api.Login)
+	r.GET("/gophish/campaigns", api.ListCampaigns)
 
 	// Grupo de rutas protegidas
 	protected := r.Group("/")
