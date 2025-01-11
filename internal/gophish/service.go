@@ -32,15 +32,15 @@ func (s *GoPhishService) ListCampaigns() ([]map[string]interface{}, error) {
 		return nil, err
 	}
 
-	req.Header.Set("Authorization", s.APIKey)
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.APIKey))
 	resp, err := s.Client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	body, _ := io.ReadAll(resp.Body)
 	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
 		return nil, fmt.Errorf("error: %s", string(body))
 	}
 
