@@ -18,6 +18,14 @@ func SetupRoutes(r *gin.Engine) {
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 
-	// Rutas protegidas
+	// Settings
+	protected.POST("/settings/reset_api_key", api.ResetAPIKey)
+
+	// Perfiles de envío
+	protected.GET("/profiles", api.GetProfiles)
+	protected.GET("/profiles/:id", api.GetProfileByID)
+	protected.POST("/profiles", api.CreateProfile)
+
+	// Rutas de campañas
 	protected.GET("/gophish/campaigns", api.ListCampaigns)
 }
