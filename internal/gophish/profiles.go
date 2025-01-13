@@ -132,3 +132,42 @@ func (s *ProfileService) CreateProfile(data map[string]interface{}) (map[string]
 
 	return profile, nil
 }
+
+// UpdateProfile modifica un perfil de envío existente en GoPhish
+func (s *ProfileService) UpdateProfile(id int, data map[string]interface{}) (map[string]interface{}, error) {
+	url := fmt.Sprintf("%s/api/smtp/%d", s.baseURL, id)
+
+	// Agregar el campo "id" al payload
+	data["id"] = id
+
+	payload, err := json.Marshal(data)
+	if err != nil {
+		return nil, fmt.Errorf("error codificando datos: %v", err)
+	}
+
+	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, fmt.Errorf("error creando solicitud: %v", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error en la solicitud HTTP: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("error en la respuesta: %s", string(body))
+	}
+
+	var profile map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&profile); err != nil {
+		return nil, fmt.Errorf("error decodificando respuesta: %v", err)
+	}
+
+	return profile, nil
+}
