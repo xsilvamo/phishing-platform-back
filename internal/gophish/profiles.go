@@ -171,3 +171,37 @@ func (s *ProfileService) UpdateProfile(id int, data map[string]interface{}) (map
 
 	return profile, nil
 }
+
+// DeleteProfile elimina un perfil de envío existente en GoPhish
+func (s *ProfileService) DeleteProfile(id int) error {
+	url := fmt.Sprintf("%s/api/smtp/%d", s.baseURL, id)
+
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return fmt.Errorf("error creando solicitud: %v", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return fmt.Errorf("error en la solicitud HTTP: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+
+		// Intentar parsear la respuesta para manejar casos específicos
+		var errorResponse map[string]interface{}
+		if err := json.Unmarshal(body, &errorResponse); err == nil {
+			if message, ok := errorResponse["message"].(string); ok && message == "SMTP not found" {
+				return fmt.Errorf("perfil no encontrado")
+			}
+		}
+
+		return fmt.Errorf("error en la respuesta: %s", string(body))
+	}
+
+	return nil
+}

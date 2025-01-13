@@ -26,6 +26,7 @@ func SetupRoutes(r *gin.Engine) {
 	protected.GET("/profiles/:id", api.GetProfileByID)
 	protected.POST("/profiles", api.CreateProfile)
 	protected.PUT("/profiles/:id", api.UpdateProfile)
+	protected.DELETE("/profiles/:id", api.DeleteProfile)
 
 	// Rutas de campañas
 	protected.GET("/gophish/campaigns", api.ListCampaigns)

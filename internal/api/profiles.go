@@ -111,3 +111,36 @@ func UpdateProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"profile": profile})
 }
+
+// DeleteProfile maneja la solicitud para eliminar un perfil de envío
+func DeleteProfile(c *gin.Context) {
+	client := &http.Client{}
+	apiKey := os.Getenv("GOPHISH_API_KEY")
+	baseURL := os.Getenv("GOPHISH_API_URL")
+
+	service := gophish.NewProfileService(client, apiKey, baseURL)
+
+	// Obtener el ID desde los parámetros de la URL
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	// Llamar al servicio para eliminar el perfil
+	err = service.DeleteProfile(id)
+	if err != nil {
+		// Manejar error específico de perfil no encontrado
+		if err.Error() == "perfil no encontrado" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "El perfil de envío no existe"})
+			return
+		}
+
+		// Otros errores
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Perfil eliminado exitosamente"})
+}
