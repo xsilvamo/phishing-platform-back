@@ -28,6 +28,16 @@ func SetupRoutes(r *gin.Engine) {
 	protected.PUT("/profiles/:id", api.UpdateProfile)
 	protected.DELETE("/profiles/:id", api.DeleteProfile)
 
+	// Templates
+	protected.GET("/templates", api.GetTemplates)
+	protected.GET("/templates/:id", api.GetTemplateByID)
+	protected.POST("/templates", api.CreateTemplate)
+	protected.PUT("/templates/:id", api.UpdateTemplate)
+	protected.DELETE("/templates/:id", api.DeleteTemplate)
+	protected.POST("/templates/import/email", api.ImportEmail)
+
+	// Landing Pages
+
 	// Rutas de campañas
 	protected.GET("/gophish/campaigns", api.ListCampaigns)
 }
