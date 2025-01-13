@@ -58,3 +58,100 @@ func GetLandingPageByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"page": page})
 }
+
+// CreateLandingPage maneja la solicitud para crear una nueva página de aterrizaje
+func CreateLandingPage(c *gin.Context) {
+	client := &http.Client{}
+	apiKey := os.Getenv("GOPHISH_API_KEY")
+	baseURL := os.Getenv("GOPHISH_API_URL")
+
+	service := gophish.NewLandingPageService(client, apiKey, baseURL)
+
+	// Leer los datos del cuerpo de la solicitud
+	var data map[string]interface{}
+	if err := c.BindJSON(&data); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
+		return
+	}
+
+	// Llamar al servicio para crear la página de aterrizaje
+	page, err := service.CreateLandingPage(data)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"page": page})
+}
+
+// UpdateLandingPage maneja la solicitud para modificar una página de aterrizaje existente
+func UpdateLandingPage(c *gin.Context) {
+	client := &http.Client{}
+	apiKey := os.Getenv("GOPHISH_API_KEY")
+	baseURL := os.Getenv("GOPHISH_API_URL")
+
+	service := gophish.NewLandingPageService(client, apiKey, baseURL)
+
+	// Obtener el ID desde los parámetros de la URL
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	// Leer los datos del cuerpo de la solicitud
+	var data map[string]interface{}
+	if err := c.BindJSON(&data); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
+		return
+	}
+
+	// Llamar al servicio para modificar la página de aterrizaje
+	page, err := service.UpdateLandingPage(id, data)
+	if err != nil {
+		// Manejar error específico de página no encontrada
+		if err.Error() == "página no encontrada" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "La página de aterrizaje no existe"})
+			return
+		}
+
+		// Otros errores
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"page": page})
+}
+
+// DeleteLandingPage maneja la solicitud para eliminar una página de aterrizaje existente
+func DeleteLandingPage(c *gin.Context) {
+	client := &http.Client{}
+	apiKey := os.Getenv("GOPHISH_API_KEY")
+	baseURL := os.Getenv("GOPHISH_API_URL")
+
+	service := gophish.NewLandingPageService(client, apiKey, baseURL)
+
+	// Obtener el ID desde los parámetros de la URL
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	// Llamar al servicio para eliminar la página de aterrizaje
+	if err := service.DeleteLandingPage(id); err != nil {
+		// Manejar error específico de página no encontrada
+		if err.Error() == "página no encontrada" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "La página de aterrizaje no existe"})
+			return
+		}
+
+		// Otros errores
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Página de aterrizaje eliminada exitosamente"})
+}
