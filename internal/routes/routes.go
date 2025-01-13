@@ -37,6 +37,8 @@ func SetupRoutes(r *gin.Engine) {
 	protected.POST("/templates/import/email", api.ImportEmail)
 
 	// Landing Pages
+	protected.GET("/landing-pages", api.GetLandingPages)
+	protected.GET("/landing-pages/:id", api.GetLandingPageByID)
 
 	// Rutas de campañas
 	protected.GET("/gophish/campaigns", api.ListCampaigns)
