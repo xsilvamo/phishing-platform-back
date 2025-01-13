@@ -64,17 +64,20 @@ func CreateProfile(c *gin.Context) {
 
 	service := gophish.NewProfileService(client, apiKey, baseURL)
 
+	// Leer los datos de la solicitud
 	var data map[string]interface{}
 	if err := c.BindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
 		return
 	}
 
+	// Llamar al servicio
 	profile, err := service.CreateProfile(data)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Responder con el perfil creado
 	c.JSON(http.StatusCreated, gin.H{"profile": profile})
 }

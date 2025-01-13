@@ -91,13 +91,17 @@ func (s *ProfileService) GetProfileByID(id int) (map[string]interface{}, error) 
 
 // CreateProfile crea un nuevo perfil de envío en GoPhish
 func (s *ProfileService) CreateProfile(data map[string]interface{}) (map[string]interface{}, error) {
-	url := fmt.Sprintf("%s/api/smtp", s.baseURL)
 
+	url := fmt.Sprintf("%s/api/smtp/", s.baseURL)
+
+	// Convertir el payload a JSON
 	payload, err := json.Marshal(data)
 	if err != nil {
 		return nil, fmt.Errorf("error codificando datos: %v", err)
 	}
+	fmt.Println("Payload enviado:", string(payload))
 
+	// Crear la solicitud HTTP
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 	if err != nil {
 		return nil, fmt.Errorf("error creando solicitud: %v", err)
@@ -105,17 +109,22 @@ func (s *ProfileService) CreateProfile(data map[string]interface{}) (map[string]
 
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Requested-With", "XMLHttpRequest")
+
+	// Enviar la solicitud
 	resp, err := s.client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("error en la solicitud HTTP: %v", err)
 	}
 	defer resp.Body.Close()
 
+	// Manejar errores en la respuesta
 	if resp.StatusCode != http.StatusCreated {
 		body, _ := io.ReadAll(resp.Body)
 		return nil, fmt.Errorf("error en la respuesta: %s", string(body))
 	}
 
+	// Decodificar la respuesta
 	var profile map[string]interface{}
 	if err := json.NewDecoder(resp.Body).Decode(&profile); err != nil {
 		return nil, fmt.Errorf("error decodificando respuesta: %v", err)
