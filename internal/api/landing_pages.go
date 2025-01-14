@@ -155,3 +155,31 @@ func DeleteLandingPage(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Página de aterrizaje eliminada exitosamente"})
 }
+
+// ImportSite maneja la solicitud para importar el HTML de una URL como base para una página de aterrizaje
+func ImportSite(c *gin.Context) {
+	client := &http.Client{}
+	apiKey := os.Getenv("GOPHISH_API_KEY")
+	baseURL := os.Getenv("GOPHISH_API_URL")
+
+	service := gophish.NewLandingPageService(client, apiKey, baseURL)
+
+	// Leer los datos del cuerpo de la solicitud
+	var body struct {
+		URL              string `json:"url" binding:"required"`
+		IncludeResources bool   `json:"include_resources"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Datos inválidos"})
+		return
+	}
+
+	// Llamar al servicio para importar el sitio
+	result, err := service.ImportSite(body.URL, body.IncludeResources)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"html": result["html"]})
+}

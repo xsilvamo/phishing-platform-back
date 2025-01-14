@@ -210,3 +210,45 @@ func (s *LandingPageService) DeleteLandingPage(id int) error {
 
 	return nil
 }
+
+// ImportSite obtiene y procesa el HTML de una URL para ser utilizado como una página de aterrizaje
+func (s *LandingPageService) ImportSite(url string, includeResources bool) (map[string]interface{}, error) {
+	apiURL := fmt.Sprintf("%s/api/import/site", s.baseURL)
+
+	// Crear el payload
+	payload := map[string]interface{}{
+		"url":               url,
+		"include_resources": includeResources,
+	}
+
+	payloadBytes, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("error codificando datos: %v", err)
+	}
+
+	req, err := http.NewRequest("POST", apiURL, bytes.NewBuffer(payloadBytes))
+	if err != nil {
+		return nil, fmt.Errorf("error creando solicitud: %v", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error en la solicitud HTTP: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("error en la respuesta: %s", string(body))
+	}
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("error decodificando respuesta: %v", err)
+	}
+
+	return result, nil
+}
