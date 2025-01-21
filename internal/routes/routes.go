@@ -44,6 +44,9 @@ func SetupRoutes(r *gin.Engine) {
 	protected.DELETE("/landing-pages/:id", api.DeleteLandingPage)
 	protected.POST("/landing-pages/import/site", api.ImportSite)
 
+	// Users & Groups
+	protected.GET("/groups", api.GetGroups)
+
 	// Rutas de campañas
 	protected.GET("/gophish/campaigns", api.ListCampaigns)
 }
