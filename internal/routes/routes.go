@@ -55,5 +55,12 @@ func SetupRoutes(r *gin.Engine) {
 	protected.POST("/groups/import", api.ImportGroup)
 
 	// Rutas de campañas
-	protected.GET("/gophish/campaigns", api.ListCampaigns)
+	protected.GET("/campaigns", api.GetCampaigns)
+	protected.GET("/campaigns/:id", api.GetCampaignByID)
+	protected.POST("/campaigns", api.CreateCampaign)
+	protected.GET("/campaigns/:id/results", api.GetCampaignResults)
+	protected.GET("/campaigns/:id/summary", api.GetCampaignSummary)
+	protected.DELETE("/campaigns/:id", api.DeleteCampaign)
+	protected.GET("/campaigns/:id/complete", api.CompleteCampaign)
+
 }
