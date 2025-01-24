@@ -63,4 +63,9 @@ func SetupRoutes(r *gin.Engine) {
 	protected.DELETE("/campaigns/:id", api.DeleteCampaign)
 	protected.GET("/campaigns/:id/complete", api.CompleteCampaign)
 
+	// Rutas de user management
+	protected.GET("/users/me", api.GetCurrentUser)
+	protected.POST("/users", api.CreateUser)
+	protected.PUT("/users/:id", api.UpdateUser)
+
 }
