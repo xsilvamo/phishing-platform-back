@@ -141,3 +141,71 @@ func (s *UserService) UpdateUser(id int, data map[string]interface{}) (map[strin
 
 	return user, nil
 }
+
+// GetUsers obtiene todos los usuarios registrados en GoPhish
+func (s *UserService) GetUsers() ([]map[string]interface{}, error) {
+	url := fmt.Sprintf("%s/api/users/", s.baseURL)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creando solicitud: %v", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error en la solicitud HTTP: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error en la respuesta: %s", string(body))
+	}
+
+	var users []map[string]interface{}
+	if err := json.Unmarshal(body, &users); err != nil {
+		return nil, fmt.Errorf("error decodificando respuesta: %v", err)
+	}
+
+	return users, nil
+}
+
+// GetUserByID obtiene un usuario específico en GoPhish por su ID
+func (s *UserService) GetUserByID(id int) (map[string]interface{}, error) {
+	url := fmt.Sprintf("%s/api/users/%d", s.baseURL, id)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error creando solicitud: %v", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("error en la solicitud HTTP: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode != http.StatusOK {
+		var errorResponse map[string]interface{}
+		if err := json.Unmarshal(body, &errorResponse); err == nil {
+			if message, ok := errorResponse["message"].(string); ok {
+				return nil, fmt.Errorf("error de la API: %s", message)
+			}
+		}
+		return nil, fmt.Errorf("error en la respuesta: %s", string(body))
+	}
+
+	var user map[string]interface{}
+	if err := json.Unmarshal(body, &user); err != nil {
+		return nil, fmt.Errorf("error decodificando respuesta: %v", err)
+	}
+
+	return user, nil
+}

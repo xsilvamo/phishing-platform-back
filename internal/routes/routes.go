@@ -65,6 +65,8 @@ func SetupRoutes(r *gin.Engine) {
 
 	// Rutas de user management
 	protected.GET("/users/me", api.GetCurrentUser)
+	protected.GET("/users", api.GetUsers)
+	protected.GET("/users/:id", api.GetUserByID)
 	protected.POST("/users", api.CreateUser)
 	protected.PUT("/users/:id", api.UpdateUser)
 
