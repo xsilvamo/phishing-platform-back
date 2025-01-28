@@ -209,3 +209,48 @@ func (s *UserService) GetUserByID(id int) (map[string]interface{}, error) {
 
 	return user, nil
 }
+
+// DeleteUser elimina un usuario en GoPhish por su ID
+func (s *UserService) DeleteUser(id int) (string, error) {
+	url := fmt.Sprintf("%s/api/users/%d", s.baseURL, id)
+
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return "", fmt.Errorf("error creando solicitud: %v", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.apiKey))
+
+	resp, err := s.client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("error en la solicitud HTTP: %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+
+	// Manejar códigos de estado
+	if resp.StatusCode == http.StatusOK {
+		// Manejar caso en que GoPhish devuelve un mensaje de éxito en el cuerpo
+		var successResponse map[string]interface{}
+		if err := json.Unmarshal(body, &successResponse); err == nil {
+			if message, ok := successResponse["message"].(string); ok {
+				return message, nil
+			}
+		}
+		return "Usuario eliminado correctamente", nil
+	}
+
+	if resp.StatusCode == http.StatusNoContent {
+		return "Usuario eliminado correctamente", nil
+	}
+
+	// Manejar errores
+	var errorResponse map[string]interface{}
+	if err := json.Unmarshal(body, &errorResponse); err == nil {
+		if message, ok := errorResponse["message"].(string); ok {
+			return "", fmt.Errorf("error de la API: %s", message)
+		}
+	}
+	return "", fmt.Errorf("error en la respuesta: %s", string(body))
+}

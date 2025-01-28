@@ -143,3 +143,33 @@ func GetUserByID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"user": user})
 }
+
+// DeleteUser maneja la solicitud para eliminar un usuario en GoPhish
+func DeleteUser(c *gin.Context) {
+	client := &http.Client{}
+	apiKey := os.Getenv("GOPHISH_API_KEY")
+	baseURL := os.Getenv("GOPHISH_API_URL")
+
+	service := gophish.NewUserService(client, apiKey, baseURL)
+
+	// Obtener el ID desde los parámetros de la URL
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID inválido"})
+		return
+	}
+
+	// Eliminar el usuario en GoPhish
+	message, err := service.DeleteUser(id)
+	if err != nil {
+		if err.Error() == "error de la API: User not found" {
+			c.JSON(http.StatusNotFound, gin.H{"error": "El usuario no existe en el sistema"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": message})
+}
